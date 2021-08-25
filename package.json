@@ -1,0 +1,44 @@
+{
+  "name": "reportspam",
+  "version": "1.0.0",
+  "description": "Api microservices messages",
+  "main": "index.js",
+  "scripts": {
+    "test": "cross-env NODE_ENV='testing' ./node_modules/.bin/mocha",
+    "worker": "cross-env NODE_ENV='development' node_modules/.bin/nodemon --inspect bin/run.js",
+    "dev": "cross-env NODE_ENV='development' node_modules/.bin/nodemon --inspect bin/run.js"
+  },
+  "author": "bakiduo",
+  "license": "MIT",
+  "dependencies": {
+    "amqplib": "^0.8.0",
+    "bcrypt": "^5.0.1",
+    "compression": "^1.7.4",
+    "config": "^3.3.6",
+    "connect-mongo": "^4.4.1",
+    "connect-redis": "^6.0.0",
+    "cross-env": "^7.0.3",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-pino-logger": "^6.0.0",
+    "full-icu": "^1.3.4",
+    "lodash": "^4.17.21",
+    "mongoose": "^5.13.5",
+    "normalizr": "^3.6.1",
+    "passport": "^0.4.1",
+    "passport-auth-token": "^1.0.1",
+    "passport-jwt": "^4.0.0",
+    "pino": "^6.13.1",
+    "redis": "^3.1.2",
+    "socket.io": "^4.1.3"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "chai": "^4.3.4",
+    "chai-http": "^4.3.0",
+    "eslint": "^7.32.0",
+    "faker": "^5.5.3",
+    "mocha": "^9.0.3",
+    "nodemon": "^2.0.12"
+  }
+}
