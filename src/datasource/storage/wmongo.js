@@ -134,6 +134,14 @@ class WMongo extends GenericDB{
     return await this.model.find(query);
   };
 
+  findMulti = async (args) =>{
+    //{ $or: [ { field1: "hi" }, { field1: "hello" } ] }
+
+    const query = { $and: args};
+    
+    return await this.model.find(query);
+  }
+
   includeById = async (item) => {
     return await this.model.find({
       _id: item._id,
@@ -142,9 +150,9 @@ class WMongo extends GenericDB{
 
   updateById = async (idx, item) => {
     const result = await this.model.updateOne({ _id: idx }, item);
-
+    const newitem =  await this.model.findOne({ _id: idx });
     if (result.ok === 1 && result.nModified === 1) {
-      return result;
+      return newitem;
     }
     return null;
   };

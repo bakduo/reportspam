@@ -52,6 +52,13 @@ class MessageController {
   save = async (req, res, next) => {
     try {
       if (req.body) {
+
+        const email = await this.repo.findMulti({'email':req.body.email},{'domain':req.body.domain},{'ip':req.body.ip});
+                
+        if (email.length>0){
+          return res.status(200).json({ status: 'Email reported' });    
+        }
+
         const message = await this.repo.save(req.body);
         if (message){
           if (this.mqs.publishToQueue(JSON.stringify({type:'save',data:message}))){
@@ -80,11 +87,22 @@ class MessageController {
     try {
 
       if (req.params.id) {
-        const Message = await this.repo.getId(req.params.id);
-        return res.status(200).json({SUCCESS:Message});
+      
+        //Async for performance
+        this.repo.getId(req.params.id)
+        .then((value)=>{
+          if (value){
+            return res.status(200).json({SUCCESS:value});
+          }else{
+            return res.status(400).json({ error: "Message not exist" });
+          }
+          
+        })
+        .catch((error)=>{
+          return res.status(500).json({error:error});
+        })
+        
       }
-
-      return res.status(400).json({ error: "Message not exist" });
     } catch (error) {
       res.status(500).send(error);
       throw Error(error);
@@ -103,14 +121,16 @@ class MessageController {
   update = async (req, res, next) => {
     try {
       if (req.params.id) {
-       const item =  await this.repo.updateById(req.params.id,req.body)
-       if (item){
-        if (this.mqs.publishToQueue(JSON.stringify({type:'update',data:message}))){
-          return res.status(200).json({SUCCESS:item});
-        };
-       }
+        const existe = await this.repo.getId(req.params.id) 
+        if (existe){
+          const item = await this.repo.updateById(req.params.id,req.body)
+          if (item){
+            if (this.mqs.publishToQueue(JSON.stringify({type:'save',data:item}))){
+              return res.status(200).json({SUCCESS:item});
+            };
+          }
+        }
       }
-
       return res.status(400).json({ error: "Product not exist" });
     } catch (error) {
       res.status(500).send(error);
@@ -132,17 +152,18 @@ class MessageController {
       
       if (req.params.id){
 
-        const existe = await this.repo.deleteById(req.params.id);
-
+        const existe = await this.repo.getId(req.params.id);
         if (existe){
-          if (this.mqs.publishToQueue(JSON.stringify({type:'delete',data:req.params.id}))){
-            return res.status(200).json({SUCCESS:existe});
-          };
+          const ok = await this.repo.deleteById(req.params.id);
+          if (existe){
+            if (this.mqs.publishToQueue(JSON.stringify({type:'delete',data:existe}))){
+              return res.status(200).json({SUCCESS:ok});
+            };
+          }
         }
-
       }
       
-      return res.status(400).json({ error: "Message not exist." });
+      return res.status(404).json({error:"The record doesn't exist"});
 
     } catch (error) {
       res.status(500).send(error);

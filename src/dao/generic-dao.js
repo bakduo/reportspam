@@ -30,6 +30,10 @@ class GenericDAO {
   
       return null;
     };
+
+    findMulti= async(...args) => {
+      return this.items.findMulti(args);
+    }
   
     getItems = async () => {
       const items = await this.items.getItems();
